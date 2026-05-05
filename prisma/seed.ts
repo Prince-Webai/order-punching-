@@ -5,19 +5,22 @@ const prisma = new PrismaClient();
 async function main() {
   const users = [
     {
-      name: 'John Sales',
-      email: 'john@solarcrm.test',
-      role: 'SALESPERSON',
-    },
-    {
-      name: 'Sarah Manager',
-      email: 'manager@solarcrm.test',
-      role: 'MANAGER',
-    },
-    {
-      name: 'Admin User',
-      email: 'admin@solarcrm.test',
+      name: 'Admin',
+      email: 'admin@tnsolarsolution.com',
       role: 'ADMIN',
+      password: 'Prince@Gaur@786',
+    },
+    {
+      name: 'Sales',
+      email: 'sales@tnsolarsolution.com',
+      role: 'SALESPERSON',
+      password: 'Prince@Gaur@786',
+    },
+    {
+      name: 'Manager',
+      email: 'manager@tnsolarsolution.com',
+      role: 'MANAGER',
+      password: 'Prince@Gaur@786',
     },
   ];
 
