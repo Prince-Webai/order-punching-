@@ -1,57 +1,114 @@
 .layoutContainer {
   display: flex;
   min-height: 100vh;
+  background-color: var(--background);
 }
 
-.mainContent {
+.mainWrapper {
   flex: 1;
-  margin-left: 260px;
   display: flex;
   flex-direction: column;
-  transition: margin-left 0.3s ease;
-}
-
-@media (max-width: 1024px) {
-  .mainContent {
-    margin-left: 0;
-  }
+  margin-left: 260px; /* Sidebar width */
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .topbar {
   height: 64px;
-  background-color: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 32px;
   position: sticky;
   top: 0;
   z-index: 30;
+}
+
+.topbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .mobileMenuBtn {
   display: none;
   background: none;
   border: none;
-  color: var(--foreground);
+  color: #64748b;
   padding: 8px;
   cursor: pointer;
-  border-radius: var(--radius-sm);
 }
 
-.mobileMenuBtn:hover {
-  background-color: var(--surface-hover);
+.searchBox {
+  width: 320px;
 }
 
-@media (max-width: 1024px) {
-  .mobileMenuBtn {
-    display: flex;
-  }
+.topInput {
+  width: 100%;
+  padding: 8px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.topInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 4px hsla(var(--p-h), var(--p-s), var(--p-l), 0.1);
+}
+
+.topbarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconBtn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.iconBtn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
 }
 
 .pageContent {
-  padding: 24px;
   flex: 1;
-  overflow-x: hidden;
+  padding-bottom: 32px; /* Extra padding for bottom nav space on mobile */
+}
+
+@media (max-width: 1024px) {
+  .mainWrapper {
+    margin-left: 0;
+  }
+  
+  .mobileMenuBtn {
+    display: block;
+  }
+  
+  .topbar {
+    padding: 0 16px;
+  }
+  
+  .searchBox {
+    display: none; /* Hide universal search on mobile topbar (it's in leads) */
+  }
+  
+  .pageContent {
+    padding-bottom: 80px; /* Space for BottomNav */
+  }
 }

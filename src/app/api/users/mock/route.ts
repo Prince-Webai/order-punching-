@@ -10,20 +10,10 @@ const MOCK_USERS = [
 
 export async function GET() {
   try {
-    const users = [];
-    
-    for (const userData of MOCK_USERS) {
-      const user = await prisma.user.upsert({
-        where: { email: userData.email },
-        update: {},
-        create: userData
-      });
-      users.push(user);
-    }
-
+    const users = await prisma.user.findMany();
     return NextResponse.json({ success: true, users });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to initialize mock users' }, { status: 500 });
+    console.error('Failed to fetch users:', error);
+    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
   }
 }

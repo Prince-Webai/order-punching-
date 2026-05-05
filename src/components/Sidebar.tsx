@@ -1,5 +1,8 @@
+"use client";
+
 import Link from 'next/link';
-import { Home, ClipboardList, Wallet, Truck, Wrench, Zap, LogOut, PlusCircle, Users, X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Home, ClipboardList, Wallet, Truck, Wrench, Zap, LogOut, PlusCircle, Users, X, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import styles from './Sidebar.module.css';
 
@@ -20,16 +23,18 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const { activeUser, users, switchUser, loading } = useAuth();
+  const { activeUser, logout, loading } = useAuth();
+  const pathname = usePathname();
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isOpen && <div className={styles.overlay} onClick={onClose} />}
 
       <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.logoContainer}>
-          <div className={styles.logoIcon}><Zap size={20} color="#FFFFFF" /></div>
+          <div className={styles.logoWrapper}>
+            <Zap size={20} fill="currentColor" />
+          </div>
           <h1 className={styles.logoText}>Solar CRM</h1>
           <button className={styles.closeBtn} onClick={onClose}>
             <X size={20} />
@@ -38,13 +43,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
         <nav className={styles.nav}>
           <div className={styles.navGroup}>
-            <span className={styles.navLabel}>MAIN MENU</span>
+            <span className={styles.navLabel}>Management</span>
             {navItems.map((item) => {
               const Icon = item.icon;
+              const isActive = pathname === item.href;
               return (
-                <Link key={item.name} href={item.href} className={styles.navItem}>
-                  <Icon size={18} className={styles.navIcon} />
-                  {item.name}
+                <Link 
+                  key={item.name} 
+                  href={item.href} 
+                  className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+                  onClick={onClose}
+                >
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                  <span>{item.name}</span>
+                  {isActive && <ChevronRight size={14} className={styles.activeIndicator} />}
                 </Link>
               );
             })}
@@ -52,32 +64,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         <div className={styles.footer}>
-          <div className={styles.userProfile} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
-            {loading ? (
-              <div style={{ fontSize: '12px' }}>Loading roles...</div>
-            ) : (
-              <>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>VIEWING AS:</div>
-                <select 
-                  value={activeUser?.id || ''} 
-                  onChange={(e) => switchUser(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '6px',
-                    borderRadius: '4px',
-                    border: '1px solid var(--border)',
-                    backgroundColor: 'var(--surface)',
-                    fontSize: '13px',
-                    outline: 'none'
-                  }}
-                >
-                  {users.map(u => (
-                    <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
-                  ))}
-                </select>
-              </>
-            )}
-          </div>
+          {!loading && activeUser && (
+            <div className={styles.profileSection}>
+              <div className={styles.avatar}>
+                {activeUser.name.charAt(0)}
+              </div>
+              <div className={styles.userInfo}>
+                <span className={styles.userName}>{activeUser.name}</span>
+                <span className={styles.userRole}>{activeUser.role}</span>
+              </div>
+              <button onClick={logout} className={styles.logoutBtn} title="Sign Out">
+                <LogOut size={18} />
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>
