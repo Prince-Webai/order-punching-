@@ -12,6 +12,7 @@ interface Order {
   quotationAmount: number;
   currentStage: string;
   lastStageUpdatedAt: string;
+  createdAt: string;
 }
 
 export default function LeadsPage() {
