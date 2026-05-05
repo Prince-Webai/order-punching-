@@ -15,8 +15,19 @@ const STAGES = [
   { id: 'EB_NET_METER', name: 'Net Metering', color: '#f97316' },
 ];
 
+interface Order {
+  id: string;
+  clientName: string;
+  mobileNumber: string;
+  emailId?: string;
+  systemSizeKw: number;
+  quotationAmount: number;
+  currentStage: string;
+  lastStageUpdatedAt: string;
+}
+
 export default function PipelinePage() {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +59,7 @@ export default function PipelinePage() {
     const orderId = e.dataTransfer.getData('orderId');
     if (!orderId) return;
 
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, currentStage: newStage } : o));
+    setOrders((prev: Order[]) => prev.map(o => o.id === orderId ? { ...o, currentStage: newStage } : o));
 
     try {
       await fetch(`/api/orders/${orderId}`, {

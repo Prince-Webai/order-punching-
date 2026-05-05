@@ -3,8 +3,19 @@
 import { useEffect, useState } from 'react';
 import { OrderDataTable } from '@/components/OrderDataTable';
 
+interface Order {
+  id: string;
+  clientName: string;
+  mobileNumber: string;
+  emailId?: string;
+  systemSizeKw: number;
+  quotationAmount: number;
+  currentStage: string;
+  lastStageUpdatedAt: string;
+}
+
 export default function LeadsPage() {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,7 +31,7 @@ export default function LeadsPage() {
   }, []);
 
   const handleUpdateStage = (orderId: string, newStage: string) => {
-    setOrders(prev => prev.map((o: any) => o.id === orderId ? { ...o, currentStage: newStage } : o));
+    setOrders((prev: Order[]) => prev.map((o) => o.id === orderId ? { ...o, currentStage: newStage } : o));
   };
 
   return (
