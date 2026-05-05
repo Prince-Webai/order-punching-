@@ -1,0 +1,148 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.kanbanBoard {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  min-height: calc(100vh - 160px);
+  scroll-snap-type: x mandatory;
+}
+
+@media (max-width: 640px) {
+  .kanbanBoard {
+    gap: 12px;
+  }
+}
+
+.kanbanColumn {
+  flex: 0 0 320px;
+  background-color: #F3F4F6;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  scroll-snap-align: center;
+}
+
+@media (max-width: 640px) {
+  .kanbanColumn {
+    flex: 0 0 85vw;
+  }
+}
+
+.columnHeader {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.columnTitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.countBadge {
+  background-color: #E5E7EB;
+  color: #4B5563;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.columnContent {
+  padding: 12px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.orderCard {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.orderCard:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.stuckCard {
+  border-color: var(--danger);
+  background-color: #FFF5F5;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.clientName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.cardBody {
+  margin-bottom: 16px;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 0.8125rem;
+}
+
+.detailLabel {
+  color: #6B7280;
+}
+
+.detailValue {
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.stuckText {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.cardFooter {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.viewBtn {
+  display: block;
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary);
+  width: 100%;
+}
+
+.viewBtn:hover {
+  text-decoration: underline;
+}

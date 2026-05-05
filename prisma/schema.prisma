@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(uuid())
+  name           String
+  email          String          @unique
+  role           String          @default("SALESPERSON")
+  orders         Order[]
+  stageTrackings StageTracking[]
+}
+
+model Order {
+  id                       String          @id @default(uuid())
+  salespersonId            String
+  salesperson              User            @relation(fields: [salespersonId], references: [id])
+  clientName               String
+  mobileNumber             String
+  emailId                  String
+  systemSizeKw             Float
+  quotationAmount          Float
+  currentStage             String          @default("ORDER")
+  paymentType              String?
+  loanType                 String?
+  paymentAmountCollected   Float           @default(0)
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+  lastStageUpdatedAt       DateTime        @default(now())
+
+  documents                Document[]
+  stageTrackings           StageTracking[]
+  installations            Installation[]
+}
+
+model Document {
+  id           String       @id @default(uuid())
+  orderId      String
+  order        Order        @relation(fields: [orderId], references: [id])
+  documentType String
+  fileUrl      String
+  uploadedAt   DateTime     @default(now())
+}
+
+model StageTracking {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  stage       String
+  subStage    String?
+  updatedById String
+  updatedBy   User     @relation(fields: [updatedById], references: [id])
+  updatedAt   DateTime @default(now())
+}
+
+model Installation {
+  id               String    @id @default(uuid())
+  orderId          String
+  order            Order     @relation(fields: [orderId], references: [id])
+  installationDate DateTime?
+  teamAssigned     String?
+}

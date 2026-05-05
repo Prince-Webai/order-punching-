@@ -1,0 +1,39 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+import { OrderDataTable } from '@/components/OrderDataTable';
+
+export default function InstallationsPage() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/orders')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setOrders(data.orders.filter((o: any) => o.currentStage === 'INSTALLATION'));
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleUpdateStage = (orderId: string, newStage: string) => {
+    if (newStage !== 'INSTALLATION') {
+      setOrders(prev => prev.filter((o: any) => o.id !== orderId));
+    }
+  };
+
+  return (
+    <div>
+      <OrderDataTable 
+        orders={orders} 
+        loading={loading} 
+        title="Active Installations" 
+        subtitle="Manage orders that are currently undergoing site installation."
+        onUpdateStage={handleUpdateStage}
+      />
+    </div>
+  );
+}
