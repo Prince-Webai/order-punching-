@@ -37,7 +37,7 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 24px;
 }
 
@@ -127,7 +127,6 @@
 }
 
 .chartArea {
-  height: 300px;
   width: 100%;
 }
 
@@ -204,9 +203,9 @@
   font-weight: 700;
   color: #3b82f6;
   background: #eff6ff;
-  padding: 2px 8px;
+  padding: 3px 8px;
   border-radius: 6px;
-  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .tooltipContainer {
