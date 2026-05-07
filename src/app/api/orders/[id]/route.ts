@@ -53,29 +53,23 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       }
     }
 
-    // BARE ESSENTIALS: Just update the order status
-    const updated = await prisma.order.update({
+    // BARE ESSENTIALS: Just update and return success
+    await prisma.order.update({
       where: { id },
       data: { 
         currentStage: stage || currentOrder.currentStage,
         loanStage: loanStage || currentOrder.loanStage,
         loanSubStage: loanSubStage || currentOrder.loanSubStage,
         lastStageUpdatedAt: new Date(),
-      },
-      include: {
-        salesperson: true,
-        payments: true,
-        shipment: true,
-        stageTrackings: { include: { updatedBy: true }, orderBy: { updatedAt: 'desc' } }
       }
     });
 
-    return NextResponse.json({ success: true, order: updated }, { status: 200 });
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
     console.error('Order Update Fatal Error:', error);
     return NextResponse.json({ 
       success: false,
-      error: error.message || 'Unknown database error'
+      error: error.message || 'Database update failed'
     }, { status: 500 });
   }
 }
