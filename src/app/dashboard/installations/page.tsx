@@ -19,9 +19,11 @@ export default function InstallationsPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const handleUpdateStage = (orderId: string, newStage: string) => {
-    if (newStage !== 'INSTALLATION') {
+  const handleUpdateStage = (orderId: string, updatedOrder: any) => {
+    if (updatedOrder.currentStage !== 'INSTALLATION') {
       setOrders(prev => prev.filter((o: any) => o.id !== orderId));
+    } else {
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updatedOrder } : o));
     }
   };
 

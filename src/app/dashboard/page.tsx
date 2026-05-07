@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PlusCircle, TrendingUp, Zap, CheckCircle, ArrowUpRight, Calendar, ArrowRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
+import { useAuth } from '@/lib/AuthContext';
+import { OrderDataTable } from '@/components/OrderDataTable';
 import styles from './dashboard-home.module.css';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -21,6 +23,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function DashboardHomePage() {
+  const { activeUser } = useAuth();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,12 +32,24 @@ export default function DashboardHomePage() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setOrders(data.orders);
+          let filtered = data.orders;
+          if (activeUser?.role === 'LOAN_PARTNER') {
+            filtered = data.orders.filter((o: any) => o.paymentType === 'LOAN');
+          }
+          setOrders(filtered);
         }
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [activeUser]);
+
+  const handleUpdateStage = (orderId: string, updatedOrder: any) => {
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updatedOrder } : o));
+  };
+
+  const handleUpdateLoanStage = (orderId: string, loanStage: string, loanSubStage: string) => {
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, loanStage, loanSubStage } : o));
+  };
 
   const totalRevenue = orders.reduce((sum, order) => sum + (order.quotationAmount || 0), 0);
   const totalSystemSize = orders.reduce((sum, order) => sum + (order.systemSizeKw || 0), 0);
@@ -169,26 +184,35 @@ export default function DashboardHomePage() {
 
         <div className={`${styles.recentActivity} card`}>
           <div className={styles.activityHeader}>
-            <h3>Recent Orders</h3>
-            <Link href="/dashboard/leads">Full List</Link>
+            <h3>Loan Leads</h3>
+            <p style={{ fontSize: '12px', color: '#64748b' }}>Awaiting finance approval</p>
           </div>
           <div className={styles.activityList}>
-            {orders.slice(0, 4).map((order) => (
+            {orders.filter(o => o.paymentType === 'LOAN').slice(0, 5).map((order) => (
               <div key={order.id} className={styles.activityItem}>
-                <div className={styles.activityAvatar} style={{ background: 'var(--primary)', color: '#000' }}>
-                  {order.clientName.charAt(0)}
+                <div className={styles.activityAvatar} style={{ background: 'hsla(45, 93%, 47%, 0.1)', color: 'hsl(45, 93%, 47%)' }}>
+                  <Zap size={14} />
                 </div>
                 <div className={styles.activityInfo}>
                   <p className={styles.activityName}>{order.clientName}</p>
-                  <p className={styles.activityMeta}>{order.systemSizeKw}kW • ₹{order.quotationAmount.toLocaleString()}</p>
-                </div>
-                <div className={styles.activityStatus}>
-                  {order.currentStage}
+                  <p className={styles.activityMeta}>{order.loanStage} • {order.loanSubStage}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
+      </div>
+
+      <div style={{ marginTop: '32px' }}>
+        <OrderDataTable 
+          orders={orders} 
+          loading={loading} 
+          title="Active Order Pipeline" 
+          subtitle="Manage and track the progress of your latest solar installations."
+          userRole={activeUser?.role}
+          onUpdateStage={handleUpdateStage}
+          onUpdateLoanStage={handleUpdateLoanStage}
+        />
       </div>
     </div>
   );

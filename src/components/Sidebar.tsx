@@ -15,6 +15,7 @@ const navItems = [
   { name: 'Shipments', href: '/dashboard/shipments', icon: Truck },
   { name: 'Installations', href: '/dashboard/installations', icon: Wrench },
   { name: 'EB & Net Meter', href: '/dashboard/eb-net-meter', icon: Zap },
+  { name: 'Settings', href: '/dashboard/settings', icon: Users, adminOnly: true },
 ];
 
 interface SidebarProps {
@@ -45,6 +46,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           <div className={styles.navGroup}>
             <span className={styles.navLabel}>Management</span>
             {navItems.map((item) => {
+              if (item.adminOnly && activeUser?.role !== 'ADMIN') return null;
+              
               const Icon = item.icon;
               const isActive = pathname === item.href;
               return (

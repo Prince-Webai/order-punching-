@@ -19,9 +19,11 @@ export default function EBNetMeterPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const handleUpdateStage = (orderId: string, newStage: string) => {
-    if (newStage !== 'EB_NET_METER') {
+  const handleUpdateStage = (orderId: string, updatedOrder: any) => {
+    if (updatedOrder.currentStage !== 'EB_NET_METER') {
       setOrders(prev => prev.filter((o: any) => o.id !== orderId));
+    } else {
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updatedOrder } : o));
     }
   };
 

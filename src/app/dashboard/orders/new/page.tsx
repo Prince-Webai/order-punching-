@@ -8,7 +8,11 @@ import styles from './new-order.module.css';
 
 export default function NewOrderPage() {
   const router = useRouter();
+  const [leads, setLeads] = useState<any[]>([]);
+  const [leadSource, setLeadSource] = useState<'NEW' | 'EXISTING'>('NEW');
+  const [searchQuery, setSearchQuery] = useState('');
   const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+  
   const [formData, setFormData] = useState({
     salespersonId: '',
     clientName: '',
@@ -22,31 +26,51 @@ export default function NewOrderPage() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    fetch('/api/users/mock')
+    // Fetch leads for existing lead selection
+    fetch('/api/orders')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const uniqueLeads = Array.from(new Map(data.orders.map((o: any) => [o.mobileNumber, o])).values());
+          setLeads(uniqueLeads);
+        }
+      });
+
+    fetch('/api/users')
       .then(res => res.json())
       .then(data => {
         if (data.success) {
           const salespersons = data.users.filter((u: any) => u.role === 'SALESPERSON');
           setAvailableUsers(salespersons);
-          const cookieMatch = document.cookie.match(/(?:^|;\s*)mock_user_id=([^;]*)/);
-          const activeUserId = cookieMatch ? decodeURIComponent(cookieMatch[1]) : null;
-          if (activeUserId) {
-            setFormData(prev => ({ ...prev, salespersonId: activeUserId }));
-          }
         }
       });
   }, []);
 
-  const handleInputChange = (e: any) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
-    }
+  const handleLeadSelect = (lead: any) => {
+    setFormData({
+      ...formData,
+      clientName: lead.clientName,
+      mobileNumber: lead.mobileNumber,
+      emailId: lead.emailId
+    });
+    setLeadSource('NEW');
   };
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const filteredLeads = leads.filter(l => 
+    l.clientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    l.mobileNumber.includes(searchQuery)
+  );
+
+  const handleInputChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +84,8 @@ export default function NewOrderPage() {
       if (res.ok) {
         router.push('/dashboard');
       } else {
-        alert('Failed to save order');
+        const data = await res.json();
+        alert(data.error || 'Failed to save order');
       }
     } catch (error) {
       alert('Error saving order');
@@ -86,33 +111,67 @@ export default function NewOrderPage() {
 
       <main className={styles.formGrid}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          {/* CARD 1: CUSTOMER INFO */}
           <div className="card">
-            <h2 className={styles.sectionTitle}><User size={20} /> Client Information</h2>
-            <div className="input-group">
-              <label className="input-label">Assigned Salesperson</label>
-              <select className="input-field" name="salespersonId" value={formData.salespersonId} onChange={handleInputChange}>
-                <option value="">Select from team</option>
-                {availableUsers.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-              </select>
-            </div>
-            <div className="input-group">
-              <label className="input-label">Customer Name</label>
-              <input className="input-field" name="clientName" placeholder="Enter full name" onChange={handleInputChange} />
-            </div>
-            <div className={styles.row}>
-              <div className="input-group">
-                <label className="input-label">Phone</label>
-                <input className="input-field" name="mobileNumber" placeholder="9876543210" onChange={handleInputChange} />
-              </div>
-              <div className="input-group">
-                <label className="input-label">Email</label>
-                <input className="input-field" name="emailId" placeholder="client@email.com" onChange={handleInputChange} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 className={styles.sectionTitle} style={{ margin: 0 }}><User size={20} /> Client Information</h2>
+              <div className={styles.toggle}>
+                <button 
+                  className={leadSource === 'NEW' ? styles.activeToggle : ''} 
+                  onClick={() => setLeadSource('NEW')}
+                >New</button>
+                <button 
+                  className={leadSource === 'EXISTING' ? styles.activeToggle : ''} 
+                  onClick={() => setLeadSource('EXISTING')}
+                >Existing</button>
               </div>
             </div>
+
+            {leadSource === 'EXISTING' ? (
+              <div className={styles.leadSearch}>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  placeholder="Search by name or phone..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <div className={styles.leadResults}>
+                  {filteredLeads.map(lead => (
+                    <div key={lead.id} className={styles.leadItem} onClick={() => handleLeadSelect(lead)}>
+                      <strong>{lead.clientName}</strong>
+                      <span>{lead.mobileNumber}</span>
+                    </div>
+                  ))}
+                  {filteredLeads.length === 0 && <p className={styles.noResults}>No leads found.</p>}
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="input-group">
+                  <label className="input-label">Assigned Salesperson</label>
+                  <select className="input-field" name="salespersonId" value={formData.salespersonId} onChange={handleInputChange}>
+                    <option value="">Select from team</option>
+                    {availableUsers.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                  </select>
+                </div>
+                <div className="input-group">
+                  <label className="input-label">Customer Name</label>
+                  <input className="input-field" name="clientName" placeholder="Enter full name" value={formData.clientName} onChange={handleInputChange} />
+                </div>
+                <div className={styles.row}>
+                  <div className="input-group">
+                    <label className="input-label">Phone</label>
+                    <input className="input-field" name="mobileNumber" placeholder="9876543210" value={formData.mobileNumber} onChange={handleInputChange} />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Email</label>
+                    <input className="input-field" name="emailId" placeholder="client@email.com" value={formData.emailId} onChange={handleInputChange} />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* CARD 2: CONFIGURATION */}
           <div className="card">
             <h2 className={styles.sectionTitle}><Zap size={20} /> System Configuration</h2>
             <div className={styles.row}>
@@ -129,18 +188,17 @@ export default function NewOrderPage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          {/* CARD 3: PAYMENT */}
           <div className="card">
             <h2 className={styles.sectionTitle}><CreditCard size={20} /> Payment Method</h2>
             <div className={styles.radioGroup}>
               <label className={styles.radioLabel}>
                 <CreditCard size={24} />
-                <input type="radio" name="paymentType" value="FULL_PAYMENT" onChange={handleInputChange} />
+                <input type="radio" name="paymentType" value="FULL_PAYMENT" checked={formData.paymentType === 'FULL_PAYMENT'} onChange={handleInputChange} />
                 Full Payment
               </label>
               <label className={styles.radioLabel}>
                 <Zap size={24} />
-                <input type="radio" name="paymentType" value="LOAN" onChange={handleInputChange} />
+                <input type="radio" name="paymentType" value="LOAN" checked={formData.paymentType === 'LOAN'} onChange={handleInputChange} />
                 Finance / Loan
               </label>
             </div>
@@ -163,42 +221,46 @@ export default function NewOrderPage() {
             )}
           </div>
 
-          {/* SECTION: DOCUMENTS */}
-        <section className="card" style={{ gridColumn: '1 / -1' }}>
-          <h2 className={styles.sectionTitle}><FileText size={20} /> Required Documentation</h2>
-          <div className={styles.uploadGrid}>
-            {[
-              { id: 'site_survey', label: 'Site Survey Photos' },
-              { id: 'aadhar_front', label: 'Aadhar Card Front' },
-              { id: 'aadhar_back', label: 'Aadhar Card Back' },
-              { id: 'bank_card', label: 'Bank Card' },
-              { id: 'bank_passbook', label: 'Bank Passbook' },
-              { id: 'eb_bill', label: 'Latest EB Bill' }
-            ].map(doc => (
-              <div 
-                key={doc.id} 
-                className={styles.uploadBox}
-                onClick={() => document.getElementById(`file-${doc.id}`)?.click()}
-              >
-                <input 
-                  type="file" 
-                  id={`file-${doc.id}`} 
-                  className={styles.fileInput} 
-                  style={{ display: 'none' }} 
-                  onChange={(e) => {
-                    if (e.target.files?.length) {
-                      const label = e.target.parentElement?.querySelector(`.${styles.uploadLabel}`);
-                      if (label) label.textContent = 'Selected ✓';
-                      e.target.parentElement?.classList.add(styles.uploaded);
-                    }
-                  }}
-                />
-                <Upload size={20} color="#94a3b8" className={styles.uploadIcon} />
-                <span className={styles.uploadLabel}>{doc.label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+          <section className="card" style={{ gridColumn: '1 / -1' }}>
+            <h2 className={styles.sectionTitle}><FileText size={20} /> Required Documentation</h2>
+            <div className={styles.uploadGrid}>
+              {[
+                { id: 'site_survey', label: 'Site Survey Photos' },
+                { id: 'aadhar_front', label: 'Aadhar Card Front' },
+                { id: 'aadhar_back', label: 'Aadhar Card Back' },
+                { id: 'pan_card', label: 'PAN Card' },
+                { id: 'bank_card', label: 'Bank Card' },
+                { id: 'bank_passbook', label: 'Bank Passbook' },
+                { id: 'eb_bill', label: 'Latest EB Bill' },
+                { id: 'invoice', label: 'Invoice' },
+                { id: 'payment_receipt', label: 'Payment Receipt' },
+                { id: 'solar_plant', label: 'Solar Plant Photo' },
+                { id: 'work_completion', label: 'Work Completion Report' }
+              ].map(doc => (
+                <div 
+                  key={doc.id} 
+                  className={styles.uploadBox}
+                  onClick={() => document.getElementById(`file-${doc.id}`)?.click()}
+                >
+                  <input 
+                    type="file" 
+                    id={`file-${doc.id}`} 
+                    className={styles.fileInput} 
+                    style={{ display: 'none' }} 
+                    onChange={(e) => {
+                      if (e.target.files?.length) {
+                        const label = e.target.parentElement?.querySelector(`.${styles.uploadLabel}`);
+                        if (label) label.textContent = 'Selected ✓';
+                        e.target.parentElement?.classList.add(styles.uploaded);
+                      }
+                    }}
+                  />
+                  <Upload size={20} color="#94a3b8" className={styles.uploadIcon} />
+                  <span className={styles.uploadLabel}>{doc.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       </main>
     </div>

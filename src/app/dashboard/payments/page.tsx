@@ -19,9 +19,11 @@ export default function PaymentsPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const handleUpdateStage = (orderId: string, newStage: string) => {
-    if (newStage !== 'PAYMENT') {
+  const handleUpdateStage = (orderId: string, updatedOrder: any) => {
+    if (updatedOrder.currentStage !== 'PAYMENT') {
       setOrders(prev => prev.filter((o: any) => o.id !== orderId));
+    } else {
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updatedOrder } : o));
     }
   };
 

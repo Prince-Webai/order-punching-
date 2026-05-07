@@ -84,6 +84,112 @@
   box-shadow: 0 10px 20px -5px var(--primary-glow);
 }
 
+.radioLabel .toggle {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.toggle button {
+  padding: 6px 16px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle button.activeToggle {
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.leadSearch {
+  margin-top: 12px;
+}
+
+.leadResults {
+  margin-top: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.leadItem {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.2s;
+}
+
+.leadItem:hover {
+  background: #f8fafc;
+}
+
+.leadItem strong {
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.leadItem span {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.noResults {
+  padding: 24px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.radioLabel .loanSubBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.loanSubBtn:hover:not(:disabled) {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.loanSubActive {
+  background: #2563eb !important;
+  color: #fff !important;
+  border-color: #2563eb !important;
+  font-weight: 600;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.currentLoanStatus {
+  font-size: 13px;
+  color: #64748b;
+  background: #fff;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
 .radioLabel input {
   display: none;
 }

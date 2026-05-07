@@ -19,9 +19,11 @@ export default function ShipmentsPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const handleUpdateStage = (orderId: string, newStage: string) => {
-    if (newStage !== 'MATERIAL_SHIPMENT') {
+  const handleUpdateStage = (orderId: string, updatedOrder: any) => {
+    if (updatedOrder.currentStage !== 'MATERIAL_SHIPMENT') {
       setOrders(prev => prev.filter((o: any) => o.id !== orderId));
+    } else {
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updatedOrder } : o));
     }
   };
 

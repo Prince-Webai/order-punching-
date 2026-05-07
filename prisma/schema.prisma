@@ -27,16 +27,45 @@ model Order {
   systemSizeKw             Float
   quotationAmount          Float
   currentStage             String          @default("ORDER")
-  paymentType              String?
+  loanStage                String?         @default("PRE_SALES")
+  loanSubStage             String?         @default("ELIGIBILITY_CHECK")
+  paymentType              String?         @default("FULL_PAYMENT") // FULL_PAYMENT, BAJAJ_FINANCE, BANK_LOAN
   loanType                 String?
-  paymentAmountCollected   Float           @default(0)
+  paymentAmountCollected   Float           @default(0) // Deposit
+  totalPaidAmount          Float           @default(0)
   createdAt                DateTime        @default(now())
   updatedAt                DateTime        @updatedAt
   lastStageUpdatedAt       DateTime        @default(now())
 
+  payments                 Payment[]
+  shipment                 Shipment?
   documents                Document[]
   stageTrackings           StageTracking[]
   installations            Installation[]
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id])
+  amount          Float
+  paymentMode     String   // CASH, UPI, BANK_TRANSFER
+  referenceNumber String
+  paymentDate     DateTime @default(now())
+  proofUrl        String?
+  createdAt       DateTime @default(now())
+}
+
+model Shipment {
+  id              String   @id @default(uuid())
+  orderId         String   @unique
+  order           Order    @relation(fields: [orderId], references: [id])
+  productDetails  String?
+  vehicleNumber   String?
+  driverName      String?
+  sentDate        DateTime @default(now())
+  dispatchProofUrl String?
+  createdAt       DateTime @default(now())
 }
 
 model Document {
@@ -45,6 +74,7 @@ model Document {
   order        Order        @relation(fields: [orderId], references: [id])
   documentType String
   fileUrl      String
+  stage        String?      // Which stage this doc belongs to
   uploadedAt   DateTime     @default(now())
 }
 
