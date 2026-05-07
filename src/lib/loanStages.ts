@@ -1,8 +1,9 @@
 export const LOAN_STAGES = {
   PRE_SALES: [
-    'Waiting for customer response',
+    'Waiting for Bank Approval',
     'Eligibility came',
-    'Case Rejected'
+    'Case Rejected',
+    'Waiting for customer response'
   ],
   PRE_DISBURSAL: [
     'Waiting for scheme confirmation',

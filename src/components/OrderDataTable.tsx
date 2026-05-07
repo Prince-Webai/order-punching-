@@ -43,7 +43,7 @@ const STAGE_ORDER = ['ORDER', 'PAYMENT', 'MATERIAL_SHIPMENT', 'INSTALLATION', 'P
 const LOAN_STAGES: Record<string, { label: string; subStages: string[] }> = {
   'PRE_SALES': {
     label: 'Pre-sales',
-    subStages: ['Waiting for customer response', 'Eligibility came', 'Case Rejected']
+    subStages: ['Waiting for Bank Approval', 'Eligibility came', 'Case Rejected', 'Waiting for customer response']
   },
   'PRE_DISBURSAL': {
     label: 'Pre Disbursal',

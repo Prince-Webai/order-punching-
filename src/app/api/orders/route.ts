@@ -57,11 +57,11 @@ export async function POST(request: Request) {
         paymentAmountCollected: Number(paymentAmountCollected) || 0,
         currentStage: initialStage,
         loanStage: 'PRE_SALES',
-        loanSubStage: 'Waiting for customer response',
+        loanSubStage: 'Waiting for Bank Approval',
         stageTrackings: {
           create: {
             stage: initialStage,
-            subStage: 'Waiting for customer response',
+            subStage: 'Waiting for Bank Approval',
             updatedById: targetSalespersonId
           }
         }
