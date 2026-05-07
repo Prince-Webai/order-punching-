@@ -53,31 +53,15 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       }
     }
 
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('mock_user_id')?.value;
-
-    // Separate the update into two parts to prevent log-failures from blocking status-saves
-    const updateData: any = {
-      currentStage: stage || currentOrder.currentStage,
-      loanStage: loanStage || currentOrder.loanStage,
-      loanSubStage: loanSubStage || currentOrder.loanSubStage,
-      lastStageUpdatedAt: new Date(),
-    };
-
-    // Only try to create a tracking entry if we have a valid user
-    if (userId && (stage || loanStage || loanSubStage)) {
-      updateData.stageTrackings = {
-        create: {
-          stage: stage || currentOrder.currentStage,
-          subStage: loanSubStage ? `Loan Status: ${loanSubStage}` : undefined,
-          updatedById: userId
-        }
-      };
-    }
-
+    // BARE ESSENTIALS: Just update the order status
     const updated = await prisma.order.update({
       where: { id },
-      data: updateData,
+      data: { 
+        currentStage: stage || currentOrder.currentStage,
+        loanStage: loanStage || currentOrder.loanStage,
+        loanSubStage: loanSubStage || currentOrder.loanSubStage,
+        lastStageUpdatedAt: new Date(),
+      },
       include: {
         salesperson: true,
         payments: true,
@@ -91,8 +75,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     console.error('Order Update Fatal Error:', error);
     return NextResponse.json({ 
       success: false,
-      error: 'Failed to update order. Details: ' + (error.message || 'Unknown error'),
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: error.message || 'Unknown database error'
     }, { status: 500 });
   }
 }
