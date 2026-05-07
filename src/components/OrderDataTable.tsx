@@ -122,6 +122,9 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
   };
 
   const handleLoanStageChange = async (orderId: string, loanStage: string, loanSubStage: string) => {
+    // OPTIMISTIC UPDATE: Update UI immediately
+    if (onUpdateLoanStage) onUpdateLoanStage(orderId, loanStage, loanSubStage);
+    
     setUpdatingId(orderId);
     try {
       const res = await fetch(`/api/orders/${orderId}`, {
@@ -129,10 +132,14 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ loanStage, loanSubStage })
       });
-      if (res.ok) {
-        if (onUpdateLoanStage) onUpdateLoanStage(orderId, loanStage, loanSubStage);
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert("Server Error: " + (errorData.error || "Failed to update loan status"));
+        // Rollback if needed (though usually we just want to know why it failed)
       }
-    } catch(e) {
+    } catch(e: any) {
+      alert("Network Error: Could not reach the server. Please check your connection.");
       console.error("Error updating loan stage:", e);
     } finally {
       setUpdatingId(null);
