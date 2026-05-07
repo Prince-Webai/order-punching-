@@ -56,6 +56,13 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const cookieStore = await cookies();
     const userId = cookieStore.get('mock_user_id')?.value;
 
+    // Ensure we have a valid user ID for tracking, or use a system fallback
+    let finalUserId = userId;
+    if (!finalUserId) {
+      const fallbackUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+      finalUserId = fallbackUser?.id || '';
+    }
+
     const updated = await prisma.order.update({
       where: { id },
       data: { 
@@ -63,11 +70,11 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
         loanStage: loanStage || currentOrder.loanStage,
         loanSubStage: loanSubStage || currentOrder.loanSubStage,
         lastStageUpdatedAt: new Date(),
-        stageTrackings: (stage || loanStage) ? {
+        stageTrackings: (stage || loanStage || loanSubStage) ? {
           create: {
             stage: stage || currentOrder.currentStage,
             subStage: loanSubStage ? `Loan Status: ${loanSubStage}` : undefined,
-            updatedById: userId || (await prisma.user.findFirst())?.id || ''
+            updatedById: finalUserId
           }
         } : undefined
       },
@@ -80,7 +87,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     });
 
     return NextResponse.json({ success: true, order: updated }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to update order stage' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Order Update Error:', error.message || error);
+    return NextResponse.json({ error: 'Failed to update order. ' + (error.message || '') }, { status: 500 });
   }
 }
