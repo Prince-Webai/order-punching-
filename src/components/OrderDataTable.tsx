@@ -43,11 +43,11 @@ const STAGE_ORDER = ['ORDER', 'PAYMENT', 'MATERIAL_SHIPMENT', 'INSTALLATION', 'P
 const LOAN_STAGES: Record<string, { label: string; subStages: string[] }> = {
   'PRE_SALES': {
     label: 'Pre-sales',
-    subStages: ['Eligibility came', 'Case Rejected', 'Waiting for customer response']
+    subStages: ['Waiting for customer response', 'Eligibility came', 'Case Rejected']
   },
   'PRE_DISBURSAL': {
     label: 'Pre Disbursal',
-    subStages: ['Scheme sent to customer and Dealer', 'Waiting for scheme confirmation', 'Scheme selected']
+    subStages: ['Waiting for scheme confirmation', 'Scheme sent to customer and Dealer', 'Scheme selected']
   },
   'PRE_OPS': {
     label: 'Pre OPS',
@@ -55,15 +55,15 @@ const LOAN_STAGES: Record<string, { label: string; subStages: string[] }> = {
   },
   'LINE_CREATION': {
     label: 'Line Creation',
-    subStages: ['Case come to line creation', 'Case still not come to line creation']
+    subStages: ['Case still not come to line creation', 'Case come to line creation']
   },
   'ASSET_SOLO': {
     label: 'Asset solo',
-    subStages: ['Bank process going on', 'Customer link completed', 'Customer link not completed']
+    subStages: ['Bank process going on', 'Customer link not completed', 'Customer link completed']
   },
   'DISPATCH': {
     label: 'Dispatch',
-    subStages: ['Done', 'Not Done']
+    subStages: ['Not Done', 'Done']
   }
 };
 
