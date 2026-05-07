@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X, Upload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import styles from './TransitionModal.module.css';
+import { LOAN_STAGES } from '@/lib/loanStages';
 
 interface TransitionModalProps {
   order: any;
@@ -15,6 +16,11 @@ interface TransitionModalProps {
 export function TransitionModal({ order, targetStage, isOpen, onClose, onSuccess }: TransitionModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isLoanTransition = Object.keys(LOAN_STAGES).includes(targetStage);
+  const loanSubStages = isLoanTransition ? (LOAN_STAGES as any)[targetStage] : [];
+
+  const [selectedSubStage, setSelectedSubStage] = useState(loanSubStages[0] || '');
 
   // Form States
   const [paymentData, setPaymentData] = useState({
@@ -84,10 +90,14 @@ export function TransitionModal({ order, targetStage, isOpen, onClose, onSuccess
   const handleGeneralTransition = async () => {
     setLoading(true);
     try {
+      const payload = isLoanTransition 
+        ? { loanStage: targetStage, loanSubStage: selectedSubStage }
+        : { stage: targetStage };
+
       const res = await fetch(`/api/orders/${order.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stage: targetStage })
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         const data = await res.json();
@@ -212,6 +222,30 @@ export function TransitionModal({ order, targetStage, isOpen, onClose, onSuccess
               style={{ marginTop: '20px', width: '100%' }}
             >
               {loading ? <Loader2 className="animate-spin" /> : 'Proceed to EB Net Metering'}
+            </button>
+          </div>
+        );
+      case 'PRE_SALES':
+      case 'PRE_DISBURSAL':
+      case 'PRE_OPS':
+      case 'LINE_CREATION':
+      case 'ASSET_SOLO':
+      case 'DISPATCH':
+        return (
+          <div className={styles.general}>
+            <h3>Update Loan Status</h3>
+            <p>Select the specific sub-stage for <strong>{targetStage.replace('_', ' ')}</strong>:</p>
+            <div className="input-group" style={{ marginTop: '16px' }}>
+              <select 
+                className="input-field" 
+                value={selectedSubStage} 
+                onChange={(e) => setSelectedSubStage(e.target.value)}
+              >
+                {loanSubStages.map((sub: string) => <option key={sub} value={sub}>{sub}</option>)}
+              </select>
+            </div>
+            <button className="btn btn-primary" onClick={handleGeneralTransition} disabled={loading} style={{ width: '100%', marginTop: '16px' }}>
+              {loading ? <Loader2 className="animate-spin" /> : 'Update Loan Milestone'}
             </button>
           </div>
         );

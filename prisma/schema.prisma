@@ -28,7 +28,7 @@ model Order {
   quotationAmount          Float
   currentStage             String          @default("ORDER")
   loanStage                String?         @default("PRE_SALES")
-  loanSubStage             String?         @default("ELIGIBILITY_CHECK")
+  loanSubStage             String?         @default("Waiting for customer response")
   paymentType              String?         @default("FULL_PAYMENT") // FULL_PAYMENT, BAJAJ_FINANCE, BANK_LOAN
   loanType                 String?
   paymentAmountCollected   Float           @default(0) // Deposit

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Search, Eye, Filter, MoreHorizontal, Download, Loader2 } from 'lucide-react';
 import { TransitionModal } from './TransitionModal';
+import { useAuth } from '@/lib/AuthContext';
 import styles from './OrderDataTable.module.css';
 
 interface Order {
@@ -67,6 +68,7 @@ const LOAN_STAGES: Record<string, { label: string; subStages: string[] }> = {
 };
 
 export function OrderDataTable({ orders, loading, title, subtitle, userRole, onUpdateStage, onUpdateLoanStage }: OrderDataTableProps) {
+  const { activeUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   
@@ -80,14 +82,40 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
     );
   }, [orders, searchTerm]);
 
-  const handleStageChange = (order: any, newStage: string) => {
-    const STAGE_ORDER = ['ORDER', 'PAYMENT', 'MATERIAL_SHIPMENT', 'INSTALLATION', 'PROJECT_COMPLETION', 'EB_NET_METER'];
-    const currentIndex = STAGE_ORDER.indexOf(order.currentStage);
-    const newIndex = STAGE_ORDER.indexOf(newStage);
+  const isLoanPartner = userRole === 'LOAN_PARTNER';
 
-    if (newIndex < currentIndex) {
-      alert("Workflow is forward-only. You cannot move a project back to a previous stage.");
-      return;
+  const columns = [
+    { header: 'Client', key: 'clientName' },
+    { header: 'Phone', key: 'mobileNumber' },
+    { header: 'System', key: 'systemSizeKw', render: (val: any) => `${val} kW` },
+    { 
+      header: isLoanPartner ? 'Loan Stage' : 'Project Stage', 
+      key: isLoanPartner ? 'loanStage' : 'currentStage',
+      render: (val: string, order: any) => (
+        <div className={styles.stageCell}>
+          <span className={`badge ${isLoanPartner ? 'badge-info' : 'badge-primary'}`}>
+            {(val || 'PENDING').replace(/_/g, ' ')}
+          </span>
+          {isLoanPartner && order.loanSubStage && (
+            <span className={styles.subStageLabel}>{order.loanSubStage}</span>
+          )}
+        </div>
+      )
+    },
+    { header: 'Quotation', key: 'quotationAmount', render: (val: any) => `₹${val?.toLocaleString()}` },
+  ];
+
+  const handleStageChange = (order: any, newStage: string) => {
+    // If loan partner, we don't enforce project forward-only for them
+    if (!isLoanPartner) {
+      const STAGES = ['ORDER', 'PAYMENT', 'MATERIAL_SHIPMENT', 'INSTALLATION', 'PROJECT_COMPLETION', 'EB_NET_METER'];
+      const currentIndex = STAGES.indexOf(order.currentStage);
+      const newIndex = STAGES.indexOf(newStage);
+
+      if (newIndex < currentIndex) {
+        alert("Workflow is forward-only. You cannot move a project back to a previous stage.");
+        return;
+      }
     }
 
     setTransitionTarget({ order, stage: newStage });
@@ -110,6 +138,8 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
       setUpdatingId(null);
     }
   };
+
+  const showLoanStatus = activeUser?.role === 'ADMIN' || activeUser?.role === 'PROJECT_MANAGER' || activeUser?.role === 'LOAN_PARTNER';
 
   return (
     <div className={`${styles.tableCard} card fade-in`}>
@@ -142,7 +172,7 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
               <th className={styles.checkCol}><input type="checkbox" className={styles.checkbox} /></th>
               <th>LEAD NAME</th>
               <th>PROJECT STAGE</th>
-              {userRole === 'LOAN_PARTNER' && <th>LOAN STATUS</th>}
+              {showLoanStatus && <th>LOAN STATUS</th>}
               <th>CAPACITY</th>
               <th>VALUE</th>
               <th>DATE</th>
@@ -183,7 +213,7 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
                     </select>
                   </div>
                 </td>
-                {userRole === 'LOAN_PARTNER' && (
+                {showLoanStatus && (
                   <td>
                     <div className={styles.loanStageArea}>
                       <select 
