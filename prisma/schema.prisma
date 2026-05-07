@@ -42,6 +42,7 @@ model Order {
   documents                Document[]
   stageTrackings           StageTracking[]
   installations            Installation[]
+  auditLogs                AuditLog[]
 }
 
 model Payment {
@@ -95,4 +96,16 @@ model Installation {
   order            Order     @relation(fields: [orderId], references: [id])
   installationDate DateTime?
   teamAssigned     String?
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  userId    String?
+  userName  String?
+  userRole  String?
+  action    String
+  details   String?
+  timestamp DateTime @default(now())
 }

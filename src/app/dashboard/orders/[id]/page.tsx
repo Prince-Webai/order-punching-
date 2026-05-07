@@ -257,6 +257,40 @@ export default function OrderDetailsPage() {
             </div>
           </div>
 
+          {/* ADMIN ONLY AUDIT LOG */}
+          {order.auditLogs && (
+            <div className="card" style={{ gridColumn: '1 / -1', background: '#fdf2f2', border: '1px solid #fee2e2' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                <Shield size={20} color="#dc2626" />
+                <h2 className={styles.sectionTitle} style={{ margin: 0, color: '#991b1b' }}>Admin Audit History (Confidential)</h2>
+              </div>
+              <div className={styles.timeline}>
+                {order.auditLogs.length > 0 ? (
+                  order.auditLogs.map((log: any) => (
+                    <div key={log.id} className={styles.timelineItem}>
+                      <div className={styles.timelineBadge} style={{ backgroundColor: '#dc2626' }}></div>
+                      <div className={styles.timelineContent}>
+                        <div className={styles.timelineHeader}>
+                          <strong style={{ color: '#1e293b' }}>{log.action}</strong>
+                          <span className={styles.timelineDate}>
+                            {new Date(log.timestamp).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className={styles.timelineSubStage} style={{ color: '#475569', fontSize: '13px', margin: '4px 0' }}>{log.details}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748b' }}>By: {log.userName}</span>
+                          <span className="badge" style={{ fontSize: '10px', padding: '2px 6px', background: '#fee2e2', color: '#991b1b' }}>{log.userRole}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className={styles.sectionDesc}>No audit history available.</p>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="card" style={{ gridColumn: '1 / -1' }}>
             <h2 className={styles.sectionTitle}>Activity Log</h2>
             <div className={styles.timeline}>
