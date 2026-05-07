@@ -56,28 +56,28 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const cookieStore = await cookies();
     const userId = cookieStore.get('mock_user_id')?.value;
 
-    // Ensure we have a valid user ID for tracking, or use a system fallback
-    let finalUserId = userId;
-    if (!finalUserId) {
-      const fallbackUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
-      finalUserId = fallbackUser?.id || '';
+    // Separate the update into two parts to prevent log-failures from blocking status-saves
+    const updateData: any = {
+      currentStage: stage || currentOrder.currentStage,
+      loanStage: loanStage || currentOrder.loanStage,
+      loanSubStage: loanSubStage || currentOrder.loanSubStage,
+      lastStageUpdatedAt: new Date(),
+    };
+
+    // Only try to create a tracking entry if we have a valid user
+    if (userId && (stage || loanStage || loanSubStage)) {
+      updateData.stageTrackings = {
+        create: {
+          stage: stage || currentOrder.currentStage,
+          subStage: loanSubStage ? `Loan Status: ${loanSubStage}` : undefined,
+          updatedById: userId
+        }
+      };
     }
 
     const updated = await prisma.order.update({
       where: { id },
-      data: { 
-        currentStage: stage || currentOrder.currentStage,
-        loanStage: loanStage || currentOrder.loanStage,
-        loanSubStage: loanSubStage || currentOrder.loanSubStage,
-        lastStageUpdatedAt: new Date(),
-        stageTrackings: (stage || loanStage || loanSubStage) ? {
-          create: {
-            stage: stage || currentOrder.currentStage,
-            subStage: loanSubStage ? `Loan Status: ${loanSubStage}` : undefined,
-            updatedById: finalUserId
-          }
-        } : undefined
-      },
+      data: updateData,
       include: {
         salesperson: true,
         payments: true,
@@ -88,7 +88,11 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
     return NextResponse.json({ success: true, order: updated }, { status: 200 });
   } catch (error: any) {
-    console.error('Order Update Error:', error.message || error);
-    return NextResponse.json({ error: 'Failed to update order. ' + (error.message || '') }, { status: 500 });
+    console.error('Order Update Fatal Error:', error);
+    return NextResponse.json({ 
+      success: false,
+      error: 'Failed to update order. Details: ' + (error.message || 'Unknown error'),
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 });
   }
 }
