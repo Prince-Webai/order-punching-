@@ -40,6 +40,8 @@ model Order {
   payments                 Payment[]
   shipment                 Shipment?
   documents                Document[]
+  rejectionReason          String?
+  priority                 String          @default("NORMAL") // NORMAL, URGENT, HIGH_VALUE
   stageTrackings           StageTracking[]
   installations            Installation[]
   auditLogs                AuditLog[]

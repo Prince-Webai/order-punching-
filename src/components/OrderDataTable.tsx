@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search, Eye, Filter, MoreHorizontal, Download, Loader2 } from 'lucide-react';
+import { Search, Eye, Filter, MoreHorizontal, Download, Loader2, AlertCircle } from 'lucide-react';
 import { TransitionModal } from './TransitionModal';
 import { useAuth } from '@/lib/AuthContext';
 import styles from './OrderDataTable.module.css';
@@ -122,6 +122,12 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
   };
 
   const handleLoanStageChange = async (orderId: string, loanStage: string, loanSubStage: string) => {
+    // If it's a rejection, ask for a reason
+    let reason = '';
+    if (loanSubStage === 'Case Rejected') {
+      reason = prompt('Please enter the reason for rejection:') || 'No reason provided';
+    }
+
     // OPTIMISTIC UPDATE: Update UI immediately
     if (onUpdateLoanStage) onUpdateLoanStage(orderId, loanStage, loanSubStage);
     
@@ -130,16 +136,19 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
       const res = await fetch(`/api/orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ loanStage, loanSubStage })
+        body: JSON.stringify({ 
+          loanStage, 
+          loanSubStage,
+          rejectionReason: reason 
+        })
       });
       
       if (!res.ok) {
         const errorData = await res.json();
         alert("Server Error: " + (errorData.error || "Failed to update loan status"));
-        // Rollback if needed (though usually we just want to know why it failed)
       }
     } catch(e: any) {
-      alert("Network Error: Could not reach the server. Please check your connection.");
+      alert("Network Error: Could not reach the server.");
       console.error("Error updating loan stage:", e);
     } finally {
       setUpdatingId(null);
@@ -199,9 +208,16 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
                       {order.clientName.charAt(0)}
                     </div>
                     <div className={styles.clientInfo}>
-                      <Link href={`/dashboard/orders/${order.id}`} className={styles.clientName}>
-                        {order.clientName}
-                      </Link>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Link href={`/dashboard/orders/${order.id}`} className={styles.clientName}>
+                          {order.clientName}
+                        </Link>
+                        {order.systemSizeKw >= 50 && (
+                          <span style={{ fontSize: '10px', background: '#fee2e2', color: '#991b1b', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                            HIGH VALUE
+                          </span>
+                        )}
+                      </div>
                       <span className={styles.clientMeta}>{order.mobileNumber}</span>
                     </div>
                   </div>
@@ -232,15 +248,22 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
                           <option key={val} value={val}>{label}</option>
                         ))}
                       </select>
-                      <select 
-                        value={order.loanSubStage || ''}
-                        onChange={(e) => handleLoanStageChange(order.id, order.loanStage || 'PRE_SALES', e.target.value)}
-                        className={styles.loanSubSelect}
-                      >
-                        {LOAN_STAGES[order.loanStage || 'PRE_SALES']?.subStages.map(sub => (
-                          <option key={sub} value={sub}>{sub}</option>
-                        ))}
-                      </select>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <select 
+                          value={order.loanSubStage || ''}
+                          onChange={(e) => handleLoanStageChange(order.id, order.loanStage || 'PRE_SALES', e.target.value)}
+                          className={styles.loanSubSelect}
+                        >
+                          {LOAN_STAGES[order.loanStage || 'PRE_SALES']?.subStages.map(sub => (
+                            <option key={sub} value={sub}>{sub}</option>
+                          ))}
+                        </select>
+                        {order.loanSubStage === 'Case Rejected' && order.rejectionReason && (
+                          <div title={`Reason: ${order.rejectionReason}`} style={{ cursor: 'help', color: '#ef4444' }}>
+                            <AlertCircle size={16} />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
                 )}

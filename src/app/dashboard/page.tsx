@@ -52,6 +52,11 @@ export default function DashboardHomePage() {
   };
 
   const totalRevenue = orders.reduce((sum, order) => sum + (order.quotationAmount || 0), 0);
+  const totalCollected = orders.reduce((sum, order) => {
+    const orderPayments = order.payments?.reduce((pSum: number, p: any) => pSum + (p.amount || 0), 0) || 0;
+    return sum + orderPayments;
+  }, 0);
+  const totalOutstanding = totalRevenue - totalCollected;
   const totalSystemSize = orders.reduce((sum, order) => sum + (order.systemSizeKw || 0), 0);
   const activePipeline = orders.filter(o => o.currentStage !== 'EB_NET_METER').length;
   const completedProjects = orders.filter(o => o.currentStage === 'EB_NET_METER').length;
@@ -77,11 +82,11 @@ export default function DashboardHomePage() {
     <div className={`${styles.container} fade-in`}>
       <header className={styles.header}>
         <div className={styles.headerTitle}>
-          <h1>Welcome Back</h1>
+          <h1>Financial Dashboard</h1>
           <div className={styles.breadcrumb}>
             <span>Analytics</span>
             <ArrowRight size={14} />
-            <span className={styles.activePath}>Performance Overview</span>
+            <span className={styles.activePath}>Cash Flow Overview</span>
           </div>
         </div>
         <div className={styles.headerActions}>
@@ -93,32 +98,32 @@ export default function DashboardHomePage() {
       </header>
 
       <div className={styles.statsGrid}>
-        <div className={`${styles.statCard} glass`}>
-          <div className={styles.statIcon} style={{ background: 'hsla(82, 85%, 45%, 0.1)', color: 'hsl(82, 85%, 45%)' }}>
+        <div className={`${styles.statCard} glass`} style={{ borderLeft: '4px solid #10b981' }}>
+          <div className={styles.statIcon} style={{ background: 'hsla(161, 94%, 30%, 0.1)', color: '#10b981' }}>
             <TrendingUp size={24} />
           </div>
           <div className={styles.statContent}>
-            <p className={styles.statLabel}>Revenue (YTD)</p>
-            <h3 className={styles.statValue}>
-              {loading ? '...' : `₹${(totalRevenue / 100000).toFixed(2)}L`}
+            <p className={styles.statLabel}>Cash Collected</p>
+            <h3 className={styles.statValue} style={{ color: '#10b981' }}>
+              {loading ? '...' : `₹${(totalCollected / 100000).toFixed(2)}L`}
             </h3>
             <span className={styles.statTrend} style={{ color: '#059669' }}>
-              <ArrowUpRight size={14} /> +12% growth
+              Realized Revenue
             </span>
           </div>
         </div>
 
-        <div className={`${styles.statCard} glass`}>
-          <div className={styles.statIcon} style={{ background: 'hsla(45, 93%, 47%, 0.1)', color: 'hsl(45, 93%, 47%)' }}>
+        <div className={`${styles.statCard} glass`} style={{ borderLeft: '4px solid #ef4444' }}>
+          <div className={styles.statIcon} style={{ background: 'hsla(0, 84%, 60%, 0.1)', color: '#ef4444' }}>
             <Zap size={24} />
           </div>
           <div className={styles.statContent}>
-            <p className={styles.statLabel}>Total Capacity</p>
-            <h3 className={styles.statValue}>
-              {loading ? '...' : `${totalSystemSize} kW`}
+            <p className={styles.statLabel}>Outstanding Balance</p>
+            <h3 className={styles.statValue} style={{ color: '#ef4444' }}>
+              {loading ? '...' : `₹${(totalOutstanding / 100000).toFixed(2)}L`}
             </h3>
-            <span className={styles.statTrend} style={{ color: '#059669' }}>
-              <ArrowUpRight size={14} /> 8.2kW new
+            <span className={styles.statTrend} style={{ color: '#dc2626' }}>
+              Money on the Table
             </span>
           </div>
         </div>
@@ -128,10 +133,10 @@ export default function DashboardHomePage() {
             <CheckCircle size={24} />
           </div>
           <div className={styles.statContent}>
-            <p className={styles.statLabel}>Completed</p>
-            <h3 className={styles.statValue}>{loading ? '...' : completedProjects}</h3>
-            <span className={styles.statTrend} style={{ color: '#059669' }}>
-              <ArrowUpRight size={14} /> On track
+            <p className={styles.statLabel}>Total Pipeline</p>
+            <h3 className={styles.statValue}>{loading ? '...' : `₹${(totalRevenue / 100000).toFixed(2)}L`}</h3>
+            <span className={styles.statTrend} style={{ color: '#64748b' }}>
+              Booked Value
             </span>
           </div>
         </div>

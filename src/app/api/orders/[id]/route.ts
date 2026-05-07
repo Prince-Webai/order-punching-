@@ -38,7 +38,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params;
-    const { stage, loanStage, loanSubStage } = await request.json();
+    const { stage, loanStage, loanSubStage, rejectionReason } = await request.json();
 
     const STAGE_ORDER = ['ORDER', 'PAYMENT', 'MATERIAL_SHIPMENT', 'INSTALLATION', 'PROJECT_COMPLETION', 'EB_NET_METER'];
 
@@ -66,6 +66,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
         currentStage: stage || currentOrder.currentStage,
         loanStage: loanStage || currentOrder.loanStage,
         loanSubStage: loanSubStage || currentOrder.loanSubStage,
+        rejectionReason: rejectionReason !== undefined ? rejectionReason : currentOrder.rejectionReason,
         lastStageUpdatedAt: new Date(),
       }
     });
