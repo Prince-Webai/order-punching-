@@ -20,7 +20,7 @@ export default function LeadsPage() {
   }, []);
 
   const handleUpdateStage = (orderId: string, newStage: string) => {
-    setOrders((prev: Order[]) => prev.map((o) => o.id === orderId ? { ...o, currentStage: newStage } : o));
+    setOrders((prev: any[]) => prev.map((o) => o.id === orderId ? { ...o, currentStage: newStage } : o));
   };
 
   return (
