@@ -79,11 +79,23 @@
   color: #64748b;
   cursor: pointer;
   transition: all 0.2s;
+  position: relative;
 }
 
 .iconBtn:hover {
   background: #f1f5f9;
   color: #1e293b;
+}
+
+.notificationBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border: 2px solid white;
+  border-radius: 50%;
 }
 
 .pageContent {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { BottomNav } from "@/components/BottomNav";
 import { Menu, X, Bell, Settings } from "lucide-react";
@@ -36,8 +37,13 @@ export default function DashboardLayout({
           </div>
           
           <div className={styles.topbarRight}>
-            <button className={styles.iconBtn}><Bell size={20} /></button>
-            <button className={styles.iconBtn}><Settings size={20} /></button>
+            <Link href="/dashboard/notifications" className={styles.iconBtn} title="Notifications">
+              <Bell size={20} />
+              <span className={styles.notificationBadge}></span>
+            </Link>
+            <Link href="/dashboard/settings" className={styles.iconBtn} title="Settings">
+              <Settings size={20} />
+            </Link>
           </div>
         </header>
 

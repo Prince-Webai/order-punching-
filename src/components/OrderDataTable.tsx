@@ -227,7 +227,7 @@ export function OrderDataTable({ orders, loading, title, subtitle, userRole, onU
                     <select 
                       value={order.currentStage}
                       onChange={(e) => handleStageChange(order, e.target.value)}
-                      disabled={updatingId === order.id}
+                      disabled={updatingId === order.id || isLoanPartner}
                       className={styles.stageSelect}
                     >
                       {Object.entries(STAGE_LABELS).map(([val, label]) => (

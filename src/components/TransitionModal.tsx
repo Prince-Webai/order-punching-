@@ -155,6 +155,28 @@ export function TransitionModal({ order, targetStage, isOpen, onClose, onSuccess
             </button>
           </div>
         );
+      case 'BOM_AND_PLANNING':
+        return (
+          <div className={styles.form}>
+            <h3>Technical BOM Verification</h3>
+            <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>Verify key components before material dispatch.</p>
+            <div className="input-group">
+              <label className="input-label">Solar Panels (Make & Quantity)</label>
+              <input type="text" className="input-field" placeholder="e.g. Adani 540Wp x 10" />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Inverter Details</label>
+              <input type="text" className="input-field" placeholder="e.g. Growatt 5kW String" />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Structure / BOS Notes</label>
+              <textarea className="input-field" rows={2} placeholder="Mounting details, cable lengths, etc." />
+            </div>
+            <button className="btn btn-primary" onClick={handleGeneralTransition} disabled={loading} style={{ width: '100%' }}>
+              {loading ? <Loader2 className="animate-spin" /> : 'Finalize BOM & Proceed'}
+            </button>
+          </div>
+        );
       case 'MATERIAL_SHIPMENT':
         return (
           <div className={styles.form}>

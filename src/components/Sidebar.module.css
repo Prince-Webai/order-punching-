@@ -16,27 +16,45 @@
   padding: 32px 24px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .logoWrapper {
-  width: 36px;
-  height: 36px;
-  background: var(--primary);
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #064e3b;
-  box-shadow: 0 0 20px hsla(var(--p-h), var(--p-s), var(--p-l), 0.3);
+  color: white;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+  overflow: hidden;
+}
+
+.logoGlow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .logoText {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
   color: white;
-  flex: 1;
+  line-height: 1;
+  margin-bottom: 2px;
 }
 
 .closeBtn {
@@ -95,59 +113,76 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+.profileSection:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
-  background: var(--primary);
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary), #10b981);
   color: #064e3b;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 
 .userInfo {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .userName {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   color: white;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .userRole {
   font-size: 10px;
-  color: #34d399;
+  color: #10b981;
   text-transform: uppercase;
-  font-weight: 800;
-  opacity: 0.8;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
 }
 
 .logoutBtn {
-  background: transparent;
+  background: rgba(248, 113, 113, 0.1);
   border: none;
-  color: #a7f3d0;
+  color: #f87171;
   cursor: pointer;
-  padding: 4px;
-  transition: color 0.2s;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
 .logoutBtn:hover {
-  color: #f87171;
+  background: #f87171;
+  color: white;
+  transform: scale(1.05);
 }
 
 @media (max-width: 768px) {

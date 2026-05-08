@@ -45,6 +45,37 @@ model Order {
   stageTrackings           StageTracking[]
   installations            Installation[]
   auditLogs                AuditLog[]
+  bomAllocations           BOMAllocation[]
+}
+
+model BOM {
+  id          String           @id @default(uuid())
+  batchName   String           @default("Material Batch")
+  items       BOMItem[]
+  allocations BOMAllocation[]
+  totalCost   Float            @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model BOMItem {
+  id          String @id @default(uuid())
+  bomId       String
+  bom         BOM    @relation(fields: [bomId], references: [id])
+  productName String
+  quantity    Float
+  unitPrice   Float
+  totalPrice  Float
+}
+
+model BOMAllocation {
+  id        String @id @default(uuid())
+  bomId     String
+  bom       BOM    @relation(fields: [bomId], references: [id])
+  orderId   String
+  order     Order  @relation(fields: [orderId], references: [id])
+  notes     String?
+  createdAt DateTime @default(now())
 }
 
 model Payment {

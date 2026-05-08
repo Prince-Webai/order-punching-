@@ -10,23 +10,36 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     const userId = cookieStore.get('mock_user_id')?.value;
     const userRole = cookieStore.get('mock_user_role')?.value;
 
+    const includeOptions: any = {
+      salesperson: true,
+      documents: true,
+      stageTrackings: {
+        include: { updatedBy: true },
+        orderBy: { updatedAt: 'desc' }
+      }
+    };
+
+    if (userRole === 'ADMIN') {
+      includeOptions.auditLogs = {
+        orderBy: { timestamp: 'desc' }
+      };
+    }
+
     const order = await prisma.order.findUnique({
       where: { id },
-      include: { 
-        salesperson: true,
-        auditLogs: userRole === 'ADMIN', // ONLY ADMIN SEES AUDIT LOGS
-        stageTrackings: {
-          include: { updatedBy: true },
-          orderBy: { updatedAt: 'desc' }
-        }
-      }
+      include: includeOptions
     });
 
     if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
 
-    // RLS Enforcement
+    // RLS Enforcement: Salespeople can only see their own orders
     if (userRole === 'SALESPERSON' && order.salespersonId !== userId) {
-      return NextResponse.json({ error: 'Unauthorized access to this lead' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized access to this project' }, { status: 403 });
+    }
+
+    // Bajaj Partners can only see loan-type orders
+    if (userRole === 'LOAN_PARTNER' && order.paymentType !== 'LOAN') {
+      return NextResponse.json({ error: 'Unauthorized access' }, { status: 403 });
     }
 
     return NextResponse.json({ success: true, order }, { status: 200 });
