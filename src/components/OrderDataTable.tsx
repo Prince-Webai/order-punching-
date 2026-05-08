@@ -17,6 +17,7 @@ interface Order {
   loanStage?: string;
   loanSubStage?: string;
   createdAt: string;
+  rejectionReason?: string;
 }
 
 interface OrderDataTableProps {
