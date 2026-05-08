@@ -13,7 +13,7 @@ interface BOMItem {
 
 export default function BOMPage() {
   const { activeUser } = useAuth();
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [items, setItems] = useState<BOMItem[]>([{ productName: '', quantity: 1, unitPrice: 0 }]);
   const [batchName, setBatchName] = useState('');

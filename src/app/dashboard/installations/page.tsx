@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { OrderDataTable } from '@/components/OrderDataTable';
 
 export default function InstallationsPage() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
